@@ -16,12 +16,12 @@ public class MarketController {
     }
 
     @PostMapping("/wallets/{wallet_id}/stocks/{stock_name}")
-    public void trade(@PathVariable("wallet_id") String walletId, @PathVariable("stock_name") String stockName, @RequestBody TradeRequest request) {
+    public void trade(@PathVariable("wallet_id") String walletId, @PathVariable("stock_name") String stockName, @RequestBody TradeRequestDto request) {
         marketService.trade(walletId, stockName, request.type());
     }
 
     @GetMapping("/wallets/{wallet_id}")
-    public WalletResponse getWallet(@PathVariable("wallet_id") String walletId) {
+    public WalletResponseDto getWallet(@PathVariable("wallet_id") String walletId) {
         return marketService.getWallet(walletId);
     }
 
@@ -38,6 +38,11 @@ public class MarketController {
     @PostMapping("/stocks")
     public void setStocks(@RequestBody BankStateDto stocks) {
         bankService.setBankState(stocks);
+    }
+
+    @GetMapping("/log")
+    public LogResponseDto getLogs() {
+        return marketService.getLogs();
     }
 
     @PostMapping("/chaos")

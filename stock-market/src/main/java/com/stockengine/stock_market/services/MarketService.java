@@ -1,20 +1,24 @@
 package com.stockengine.stock_market.services;
 
 import com.stockengine.stock_market.TransactionType;
+import com.stockengine.stock_market.dto.LogEntryDto;
+import com.stockengine.stock_market.dto.LogResponseDto;
 import com.stockengine.stock_market.dto.StockDto;
-import com.stockengine.stock_market.dto.WalletResponse;
+import com.stockengine.stock_market.dto.WalletResponseDto;
 import com.stockengine.stock_market.exceptions.StockNotFoundException;
 import com.stockengine.stock_market.exceptions.WalletNotFoundException;
+import com.stockengine.stock_market.model.AuditLog;
 import com.stockengine.stock_market.model.BankStock;
 import com.stockengine.stock_market.model.Wallet;
+import com.stockengine.stock_market.repositories.AuditLogRepository;
 import com.stockengine.stock_market.repositories.BankStockRepository;
 import com.stockengine.stock_market.repositories.WalletRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,10 +27,12 @@ import java.util.stream.Collectors;
 public class MarketService {
     private final BankStockRepository bankStockRepository;
     private final WalletRepository walletRepository;
+    private final AuditLogRepository auditLogRepository;
 
-    public MarketService(BankStockRepository bankStockRepository, WalletRepository walletRepository) {
+    public MarketService(BankStockRepository bankStockRepository, WalletRepository walletRepository, AuditLogRepository auditLogRepository) {
         this.bankStockRepository = bankStockRepository;
         this.walletRepository = walletRepository;
+        this.auditLogRepository = auditLogRepository;
     }
 
     @Retryable(
@@ -56,9 +62,12 @@ public class MarketService {
 
         walletRepository.save(wallet);
         bankStockRepository.save(bankStock);
+
+        auditLogRepository.save(new AuditLog(transactionType, walletId, stockName));
     }
 
-    public WalletResponse getWallet(String walletId) {
+    @Transactional(readOnly = true)
+    public WalletResponseDto getWallet(String walletId) {
         Wallet wallet = walletRepository.findById(walletId)
                 .orElseThrow(() -> new WalletNotFoundException("Wallet not found: " + walletId));
 
@@ -66,12 +75,22 @@ public class MarketService {
                 .map(entry -> new StockDto(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
-        return new WalletResponse(walletId, stocks);
+        return new WalletResponseDto(walletId, stocks);
     }
 
+    @Transactional(readOnly = true)
     public int getWalletStock(String walletId, String stockName) {
         return walletRepository.findById(walletId)
                 .map(w -> w.getStocks().getOrDefault(stockName, 0))
                 .orElse(0);
+    }
+
+    @Transactional(readOnly = true)
+    public LogResponseDto getLogs() {
+        List<LogEntryDto> logs = auditLogRepository.findAllByOrderByIdAsc().stream()
+                .map(l -> new LogEntryDto(l.getType(), l.getWalletId(), l.getStockName()))
+                .toList();
+
+        return new LogResponseDto(logs);
     }
 }

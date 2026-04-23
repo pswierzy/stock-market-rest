@@ -28,7 +28,7 @@ public class AuditLog {
         this.stockName = stockName;
     }
 
-    public String getType() { return type; }
+    public TransactionType getType() { return type; }
     public String getWalletId() { return walletId; }
     public String getStockName() { return stockName; }
 }
