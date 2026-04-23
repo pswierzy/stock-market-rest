@@ -47,6 +47,6 @@ public class MarketController {
 
     @PostMapping("/chaos")
     public void chaos() {
-        System.exit(0);
+        Runtime.getRuntime().halt(1);
     }
 }
