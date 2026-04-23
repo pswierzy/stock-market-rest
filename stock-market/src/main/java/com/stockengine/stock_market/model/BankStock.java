@@ -1,5 +1,6 @@
 package com.stockengine.stock_market.model;
 
+import com.stockengine.stock_market.exceptions.InsufficientStockException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
@@ -29,7 +30,7 @@ public class BankStock {
     public void increaseQuantity(Integer quantity) { this.quantity += quantity; }
     public void decreaseQuantity(int amount) {
         if (this.quantity < amount) {
-            throw new IllegalStateException("Not enough stocks in bank");
+            throw new InsufficientStockException("Not enough stocks in bank");
         }
         this.quantity -= amount;
     }

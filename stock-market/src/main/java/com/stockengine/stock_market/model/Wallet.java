@@ -1,5 +1,6 @@
 package com.stockengine.stock_market.model;
 
+import com.stockengine.stock_market.exceptions.InsufficientStockException;
 import jakarta.persistence.*;
 
 import java.util.HashMap;
@@ -37,7 +38,7 @@ public class Wallet {
         Integer currQuantity = stocks.get(name);
 
         if (currQuantity == null || currQuantity < quantity) {
-            throw new IllegalStateException("Not enough stocks in wallet");
+            throw new InsufficientStockException("Not enough stocks in wallet");
         }
 
         if (currQuantity.equals(quantity)) {
