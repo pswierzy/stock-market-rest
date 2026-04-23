@@ -15,7 +15,7 @@ public class BankStock {
     private Long version;
 
     public BankStock() {}
-    public BankStock(String name, Integer quantity, Long version) {
+    public BankStock(String name, Integer quantity) {
         this.name = name;
         this.quantity = quantity;
     }

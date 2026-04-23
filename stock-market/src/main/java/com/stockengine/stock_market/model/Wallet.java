@@ -43,7 +43,7 @@ public class Wallet {
         if (currQuantity.equals(quantity)) {
             stocks.remove(name);
         } else {
-            stocks.put(name, quantity - currQuantity);
+            stocks.put(name, currQuantity - quantity);
         }
     }
 
