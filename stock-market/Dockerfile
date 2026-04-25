@@ -1,17 +1,22 @@
-FROM maven:3.9-eclipse-temurin-25-alpine AS build
+FROM ghcr.io/graalvm/native-image-community:25 AS build
 WORKDIR /app
 
+COPY mvnw .
+COPY .mvn .mvn
 COPY pom.xml .
 COPY src ./src
 
-RUN mvn clean package -DskipTests
+ENV _JAVA_OPTIONS="-Xmx4g"
 
-FROM eclipse-temurin:25-jre-alpine
-RUN apk add --no-cache curl
+RUN chmod +x mvnw
+RUN ./mvnw -Pnative native:compile -DskipTests
+
+FROM alpine:latest
+RUN apk add --no-cache curl libc6-compat
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/stock-market app
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["/app/app"]
