@@ -3,6 +3,7 @@ package com.stockengine.stock_market;
 import com.stockengine.stock_market.dto.*;
 import com.stockengine.stock_market.services.BankService;
 import com.stockengine.stock_market.services.MarketService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -48,5 +49,10 @@ public class MarketController {
     @PostMapping("/chaos")
     public void chaos() {
         Runtime.getRuntime().halt(1);
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("OK");
     }
 }

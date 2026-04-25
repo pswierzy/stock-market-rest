@@ -20,11 +20,11 @@ services:
       - DB_PASS=password
       - DB_NAME=stock_market
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/log"]
-      interval: 15s
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
       timeout: 2s
       retries: 10
-      start_period: 5s
+      start_period: 10s
     depends_on:
       - postgres-db
 
