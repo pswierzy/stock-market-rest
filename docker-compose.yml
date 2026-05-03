@@ -11,7 +11,7 @@ services:
   stock-market-app:
     build: ./stock-market
     deploy:
-      replicas: 3
+      replicas: 5
     restart: unless-stopped
     environment:
       - DB_HOST=postgres-db
@@ -22,9 +22,9 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
-      timeout: 2s
+      timeout: 1s
       retries: 10
-      start_period: 10s
+      start_period: 1s
     depends_on:
       - postgres-db
 
@@ -37,7 +37,4 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: stock_market
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+      - /var/lib/postgresql/data
