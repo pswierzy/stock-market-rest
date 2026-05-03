@@ -1,17 +1,19 @@
-FROM maven:3.9-eclipse-temurin-25-alpine AS build
+FROM golang:1.26-alpine AS builder
+
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+COPY go.mod go.sum ./
+RUN go mod download
 
-RUN mvn clean package -DskipTests
+COPY . .
 
-FROM eclipse-temurin:25-jre-alpine
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./main.go
+
+FROM alpine:latest
 RUN apk add --no-cache curl
-WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=builder /app/main /main
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["/main"]
